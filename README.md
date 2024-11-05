@@ -23,3 +23,10 @@ Test by runnig:
 deno run --allow-all .\main.ts <path-to-local-repo-of-ecp-integration-services>
 
 ```
+To build a stand alone executable, run:
+```bash
+
+deno compile -o ECPVersionCheck --allow-read .\main.ts
+
+```
+More info [here](https://docs.deno.com/runtime/reference/cli/compiler/)
