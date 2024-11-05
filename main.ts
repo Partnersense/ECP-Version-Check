@@ -152,7 +152,7 @@ if (import.meta.main) {
     for (const key of Object.keys(stageComp.AppEnvVars)) {
       //Check if the key is present in stage
       if (!(key in prodComp.AppEnvVars)) {
-        logPinkIndend(`Environment variable ${key} is in STAGE but not PROD! Value in STAGE is (${stageComp?.AppEnvVars[key]})`);
+        logPinkIndend(`${key} is in STAGE but not PROD. Value in STAGE is (${stageComp?.AppEnvVars[key]})`);
       }
     }
 
@@ -160,7 +160,7 @@ if (import.meta.main) {
     for (const key of Object.keys(prodComp.AppEnvVars)) {
       //Check if the key is present in stage
       if (!(key in stageComp.AppEnvVars)) {
-        logBlueIndend(`Environment variable ${key} is in PROD but not STAGE Value in PROD is (${prodComp?.AppEnvVars[key]})`);
+        logBlueIndend(`${key} is in PROD but not STAGE. Value in PROD is (${prodComp?.AppEnvVars[key]})`);
       }
     }
   }

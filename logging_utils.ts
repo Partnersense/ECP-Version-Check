@@ -11,5 +11,5 @@ export function logPinkIndend(message: string) {
   }
 
 export function logBlueIndend(message: string) {
-    console.log(`%c\t${message}`,"color: light-blue; font-weight: bold; font-style: italic; margin-left: 20px;");
+    console.log(`%c\t${message}`,"color: #ADD8E6; font-weight: bold; font-style: italic; margin-left: 20px;");
   }
