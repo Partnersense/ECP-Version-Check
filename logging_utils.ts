@@ -9,3 +9,7 @@ export function logRed(message: string) {
 export function logPinkIndend(message: string) {
     console.log(`%c\t${message}`,"color: pink; font-weight: bold; font-style: italic; margin-left: 20px;");
   }
+
+export function logBlueIndend(message: string) {
+    console.log(`%c\t${message}`,"color: light-blue; font-weight: bold; font-style: italic; margin-left: 20px;");
+  }

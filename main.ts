@@ -1,5 +1,5 @@
 
-import { logGreen, logPinkIndend, logRed } from "./logging_utils.ts"; //Just learning about importing from local files :)
+import { logGreen, logPinkIndend, logRed, logBlueIndend } from "./logging_utils.ts"; //Just learning about importing from local files :)
 import { walkSync } from "jsr:@std/fs/walk";
 
 
@@ -47,27 +47,43 @@ interface EnvVars {
  * @param fileContent Content of the terraform file
  * @returns Object of environment variables
  */
-function extractEnvVars(fileContent: string): EnvVars {
-  // Find the environment_vars block
-  const match = fileContent.match(/environment_vars\s*=\s*{([^}]+)}/);
-  if (!match) {
-      console.log('No environment_vars block found in the file');
-      return {};
+function extractEnvironmentVariables(fileContent: string): EnvVars {
+  const result: EnvVars = {};
+  const lines = fileContent.split('\n');
+  
+  let isInEnvVarBlock = false;
+  
+  for (const line of lines) {
+      const trimmedLine = line.trim();
+      
+      // Check if we're entering the environment_vars block
+      if (trimmedLine === 'environment_vars = {') {
+          isInEnvVarBlock = true;
+          continue;
+      }
+      
+      // Check if we're exiting the environment_vars block
+      if (isInEnvVarBlock && trimmedLine === '}') {
+          isInEnvVarBlock = false;
+          continue;
+      }
+      
+      // Process lines within the environment_vars block
+      if (isInEnvVarBlock && trimmedLine.includes('=')) {
+          // Remove quotes and commas
+          const cleanLine = trimmedLine.replace(/["',]/g, '');
+          const [key, ...valueParts] = cleanLine.split('=');
+          
+          // Join value parts in case the value contained '=' characters
+          const value = valueParts.join('=');
+          
+          if (key && value) {
+              result[key.trim()] = value.trim();
+          }
+      }
   }
-
-  const envBlock = match[1];
-  const envVars: EnvVars = {};
-
-  // Match all key-value pairs
-  const keyValueRegex = /"([^"]+)"\s*=\s*"([^"]+)"/g;
-  let keyValueMatch;
-
-  while ((keyValueMatch = keyValueRegex.exec(envBlock)) !== null) {
-      const [_, key, value] = keyValueMatch;
-      envVars[key] = value;
-  }
-
-  return envVars;
+  
+  return result;
 }
 
 /**
@@ -92,7 +108,7 @@ function getComponentsFromPath(path: string): ComponentVersionInfo[] {
     if(!app.component || !app.version) {
       continue;
     }
-    app.AppEnvVars = extractEnvVars(Deno.readTextFileSync(dir.path));
+    app.AppEnvVars = extractEnvironmentVariables(Deno.readTextFileSync(dir.path));
     components.push(app);
   }
   return components;
@@ -135,8 +151,16 @@ if (import.meta.main) {
     // Check if all the environment variables in stage are present in prod
     for (const key of Object.keys(stageComp.AppEnvVars)) {
       //Check if the key is present in stage
-      if (!prodComp?.AppEnvVars[key]) {
-        logPinkIndend(`Environment variable ${key} is missing in prod! Value in stage is (${stageComp?.AppEnvVars[key]})`);
+      if (!(key in prodComp.AppEnvVars)) {
+        logPinkIndend(`Environment variable ${key} is in STAGE but not PROD! Value in STAGE is (${stageComp?.AppEnvVars[key]})`);
+      }
+    }
+
+    // Check if all the environment variables in prod are present in stage
+    for (const key of Object.keys(prodComp.AppEnvVars)) {
+      //Check if the key is present in stage
+      if (!(key in stageComp.AppEnvVars)) {
+        logBlueIndend(`Environment variable ${key} is in PROD but not STAGE Value in PROD is (${prodComp?.AppEnvVars[key]})`);
       }
     }
   }
