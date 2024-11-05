@@ -4,6 +4,8 @@ Small CLI tool to compare versions of services in the ECP/GB project. Currently,
 
 The tool reads a local copy of the ecp-integration-services repo and therefore it is important that you have checked out the latest version to get the most up-to-date comparison
 
+![Example output](/example.png "Example output")
+
 # Features
 
 - List version number in Stage and Prod
@@ -23,10 +25,9 @@ Test by runnig:
 deno run --allow-all .\main.ts <path-to-local-repo-of-ecp-integration-services>
 
 ```
-To build a stand alone executable, run:
+To build a stand alone executable, run (more info [here](https://docs.deno.com/runtime/reference/cli/compiler/)):
 ```bash
 
-deno compile -o ECPVersionCheck --allow-read .\main.ts
+deno compile -o ECPVersionCheck --allow-read --allow-env .\main.ts
 
 ```
-More info [here](https://docs.deno.com/runtime/reference/cli/compiler/)
