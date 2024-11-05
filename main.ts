@@ -77,7 +77,7 @@ function extractEnvVars(fileContent: string): EnvVars {
  * @returns Array of ComponentVersionInfo objects
  */
 function getComponentsFromPath(path: string): ComponentVersionInfo[] {
-  // Create an empty array to store the components
+  
   const components: ComponentVersionInfo[] = [];
   const dirs = walkSync(path);
   for (const dir of dirs) {
@@ -101,9 +101,7 @@ function getComponentsFromPath(path: string): ComponentVersionInfo[] {
 // Learn more at https://deno.land/manual/examples/module_metadata#concepts
 if (import.meta.main) {
 
-
-  
-  // Set ENV VARS in VS Code launch.json. See help here https://docs.deno.com/runtime/reference/vscode
+  // Set ENV VARS in VS Code launch.json for easy debuging. See help here https://docs.deno.com/runtime/reference/vscode
   const isDebug = Deno.env.get("DEBUG") 
   if (isDebug){
     Deno.args[0] = Deno.env.get("DEBUG_ARG_ZERO") || "";
@@ -111,7 +109,6 @@ if (import.meta.main) {
   
   const path = Deno.args[0];
   if (!path) {
-    //If in debug mode, provide a default path
     logRed("Please provide the path to ecp-integration-services folder as an argument."); 
     Deno.exit(1);
   }
@@ -119,13 +116,9 @@ if (import.meta.main) {
   const prodPath = path + "/Terraform/Environments/prod/workload";
   const stagePath = path + "/Terraform/Environments/stage/workload";
   
-
   const prodComps: ComponentVersionInfo[] = getComponentsFromPath(prodPath);
   const stageComps: ComponentVersionInfo[] = getComponentsFromPath(stagePath);
-
-  // sort prodComps by component name
-  //const sortedProdComps = prodComps.sort((a,b) => a.component.localeCompare(b.component));
-
+  
   for (const prodComp of prodComps) {
     const stageComp = stageComps.find((c) => c.component === prodComp.component);
     if (!stageComp) {
@@ -139,15 +132,13 @@ if (import.meta.main) {
       logGreen(`${prodComp.component} is in sync in prod (${prodComp.version}) and stage (${stageComp?.version})`);
     }
 
-    // Check if the environment variables are present in both prod and stage
+    // Check if all the environment variables in stage are present in prod
     for (const key of Object.keys(stageComp.AppEnvVars)) {
       //Check if the key is present in stage
       if (!prodComp?.AppEnvVars[key]) {
         logPinkIndend(`Environment variable ${key} is missing in prod! Value in stage is (${stageComp?.AppEnvVars[key]})`);
       }
     }
-    //console.log();
   }
-
   prompt("Press Enter to exit.");
 }
